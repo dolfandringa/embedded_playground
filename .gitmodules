@@ -1,0 +1,6 @@
+[submodule "tools/stlink"]
+	path = tools/stlink
+	url = https://github.com/ve3wwg/stlink.git
+[submodule "lib/FreeRTOS"]
+	path = lib/FreeRTOS
+	url = https://github.com/FreeRTOS/FreeRTOS
