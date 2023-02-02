@@ -4,6 +4,7 @@
 [submodule "lib/FreeRTOS"]
 	path = lib/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS
+  ignore = dirty
 [submodule "lib/libopencm3"]
 	path = lib/libopencm3
 	url = https://github.com/libopencm3/libopencm3
