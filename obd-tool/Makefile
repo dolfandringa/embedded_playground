@@ -7,7 +7,8 @@ BOARD = STM32F103C8
 
 BINARY		= src/main
 SRCFILES	= src/main.c
-FREERTOS_OBJS = list.o tasks.o
+FREERTOS_OBJS = list.o tasks.o queue.o
+LIB_OBJS = opencm3_serial.o
 FREERTOS_MEM = heap_4.o
 
 include ../Makefile.incl

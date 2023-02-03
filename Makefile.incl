@@ -6,6 +6,7 @@ PREFIX		?= arm-none-eabi
 
 TOP_DIR 	:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 LIB_DIR := $(abspath $(TOP_DIR)/lib)
+INCLUDE_DIR := $(abspath $(TOP_DIR)/include)
 
 
 FP_FLAGS	?= -msoft-float
@@ -31,13 +32,15 @@ CSTD		?= -std=c99
 TEMP1 		= $(patsubst %.c,%.o,$(SRCFILES))
 TEMP2		= $(patsubst %.asm,%.o,$(TEMP1))
 OBJS 		= $(patsubst %.cpp,%.o,$(TEMP2))
+OBJS 		+= $(patsubst %.o,$(LIB_DIR)/%.o,$(LIB_OBJS))
 
 TGT_CFLAGS	+= $(OPT) $(CSTD)
 TGT_CFLAGS	+= $(ARCH_FLAGS)
 TGT_CFLAGS	+= -Wextra -Wshadow -Wimplicit-function-declaration
 TGT_CFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 TGT_CFLAGS	+= -fno-common -ffunction-sections -fdata-sections
-TGT_CFLAGS	+= -I$(TOP_DIR)/lib
+TGT_CFLAGS	+= -I$(LIB_DIR)
+TGT_CFLAGS	+= -I$(INCLUDE_DIR)
 
 TGT_CXXFLAGS	+= $(OPT) $(CXXSTD)
 TGT_CXXFLAGS	+= $(ARCH_FLAGS)
@@ -47,7 +50,8 @@ TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 TGT_CPPFLAGS	+= -MD
 TGT_CPPFLAGS	+= -Wall -Wundef
 TGT_CPPFLAGS	+= $(DEFS)
-TGT_CPPFLAGS	+= -I$(TOP_DIR)/lib
+TGT_CFLAGS	+= -I$(LIB_DIR)
+TGT_CFLAGS	+= -I$(INCLUDE_DIR)
 
 TGT_LDFLAGS	+= --static -nostartfiles
 TGT_LDFLAGS	+= -T$(LDSCRIPT)

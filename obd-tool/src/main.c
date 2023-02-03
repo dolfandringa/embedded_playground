@@ -5,6 +5,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include <opencm3_serial.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
@@ -21,19 +22,18 @@ vApplicationStackOverflowHook(
 	for(;;);	// Loop forever here..
 }
 
-static void
-task1(void *args __attribute((unused))) {
+static void task1(void *args __attribute((unused))) {
 
 	for (;;) {
 		gpio_set(LED_PORT,LED);
-		vTaskDelay(pdMS_TO_TICKS(200));
+		vTaskDelay(pdMS_TO_TICKS(500));
 		gpio_clear(LED_PORT, LED);
+		serial_print("Blinky\r\n");
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }
 
-int
-main(void) {
+int main(void) {
 
 	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
@@ -44,7 +44,9 @@ main(void) {
 		GPIO_CNF_OUTPUT_PUSHPULL,
 		LED);
 
-	xTaskCreate(task1,"LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	serial_setup();
+
+	xTaskCreate(task1,"LED",100,NULL,configMAX_PRIORITIES-2,NULL);
 	vTaskStartScheduler();
 
 	for (;;);

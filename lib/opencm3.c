@@ -1,8 +1,3 @@
-/* Warren W. Gay VE3WWG
- *
- * To use libopencm3 with FreeRTOS on Cortex-M3 platform, we must
- * define three interlude routines.
- */
 #include "FreeRTOS.h"
 #include "task.h"
 #include <libopencm3/stm32/rcc.h>
@@ -24,5 +19,3 @@ void pend_sv_handler(void) {
 void sys_tick_handler(void) {
 	xPortSysTickHandler();
 }
-
-/* end opncm3.c */
