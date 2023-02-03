@@ -4,6 +4,9 @@ compile_commands.json
 *.d
 .ccls-cache
 *.a
+*.bin
 *.elf
 *.map
 *.hex
+*.list
+*.srec

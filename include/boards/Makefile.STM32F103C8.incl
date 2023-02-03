@@ -1,0 +1,6 @@
+ifeq ($(BOARD),STM32F103C8)
+OPENCM3_BOARD = lib/stm32/f1
+LIBNAME = opencm3_stm32f1
+DEFS += -DSTM32F1
+LDSCRIPT	?= $(TOP_DIR)/include/boards/stm32f103c8t6.ld
+endif

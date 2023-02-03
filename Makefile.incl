@@ -6,15 +6,7 @@ PREFIX		?= arm-none-eabi
 
 TOP_DIR 	:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 LIB_DIR := $(abspath $(TOP_DIR)/lib)
-# OPENCM3_DIR 	:= $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/libopencm3)
-OPENCM3_DIR 	:= $(abspath $(TOP_DIR)/lib/libopencm3)
 
-FREERTOS_DIR 	:= $(abspath $(TOP_DIR)/lib/FreeRTOS/FreeRTOS/Source)
-FREERTOS_MEM_DIR := $(abspath $(FREERTOS_DIR)/portable/MemMang)
-FREERTOS_PORT_DIR := $(abspath $(FREERTOS_DIR)/portable/GCC/ARM_CM3)
-
-LIBNAME		= opencm3_stm32f1
-DEFS		+= -DSTM32F1
 
 FP_FLAGS	?= -msoft-float
 ARCH_FLAGS	= -mthumb -mcpu=cortex-m3 $(FP_FLAGS) -mfix-cortex-m3-ldrd
@@ -39,23 +31,13 @@ CSTD		?= -std=c99
 TEMP1 		= $(patsubst %.c,%.o,$(SRCFILES))
 TEMP2		= $(patsubst %.asm,%.o,$(TEMP1))
 OBJS 		= $(patsubst %.cpp,%.o,$(TEMP2))
-OBJS += $(LIB_DIR)/opencm3.o
-OBJS += $(patsubst %.o,$(FREERTOS_DIR)/%.o,$(FREERTOS_OBJS))
-OBJS += $(FREERTOS_PORT_DIR)/port.o
-OBJS += $(FREERTOS_MEM_DIR)/$(FREERTOS_MEM)
-
-LDSCRIPT	?= $(TOP_DIR)/stm32f103c8t6.ld
 
 TGT_CFLAGS	+= $(OPT) $(CSTD)
 TGT_CFLAGS	+= $(ARCH_FLAGS)
 TGT_CFLAGS	+= -Wextra -Wshadow -Wimplicit-function-declaration
 TGT_CFLAGS	+= -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 TGT_CFLAGS	+= -fno-common -ffunction-sections -fdata-sections
-TGT_CFLAGS	+= -I$(FREERTOS_DIR)/include -I./include -I. -I$(FREERTOS_PORT_DIR)
 TGT_CFLAGS	+= -I$(TOP_DIR)/lib
-TGT_CFLAGS	+= -I$(OPENCM3_DIR)/include
-
-
 
 TGT_CXXFLAGS	+= $(OPT) $(CXXSTD)
 TGT_CXXFLAGS	+= $(ARCH_FLAGS)
@@ -65,11 +47,7 @@ TGT_CXXFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 TGT_CPPFLAGS	+= -MD
 TGT_CPPFLAGS	+= -Wall -Wundef
 TGT_CPPFLAGS	+= $(DEFS)
-# TGT_CPPFLAGS	+= -I$(OPENCM3_DIR)/include
-# TGT_CPPFLAGS	+= -I$(TOP_DIR)/rtos/libwwg/include
-TGT_CPPFLAGS	+= -I$(FREERTOS_DIR)/include -I./include -I. -I$(FREERTOS_PORT_DIR)
 TGT_CPPFLAGS	+= -I$(TOP_DIR)/lib
-TGT_CPPFLAGS	+= -I$(OPENCM3_DIR)/include
 
 TGT_LDFLAGS	+= --static -nostartfiles
 TGT_LDFLAGS	+= -T$(LDSCRIPT)
@@ -79,10 +57,11 @@ TGT_LDFLAGS	+= -Wl,--gc-sections
 
 LDLIBS		+= -specs=nosys.specs
 LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
-# LDLIBS		+= -L$(TOP_DIR)/rtos/libwwg -lwwg
-# LDLIBS		+= -L$(OPENCM3_DIR)/lib -lopencm3_stm32f1
-# $(OPENCM3_DIR)/lib/stm32/f1
-LDLIBS		+= -L$(OPENCM3_DIR)/lib -lopencm3_stm32f1
+
+
+include $(TOP_DIR)/Makefile.libopencm3.incl
+include $(TOP_DIR)/Makefile.FreeRTOS.incl
+
 
 .SUFFIXES:	.elf .bin .hex .srec .list .map .images
 .SECONDEXPANSION:
@@ -94,9 +73,6 @@ hex:	$(DEPS) $(BINARY).hex
 srec:	$(DEPS) $(BINARY).srec
 list:	$(DEPS) $(BINARY).list
 
-
-libopencm3:
-	$(MAKE) -C $(OPENCM3_DIR) lib/stm32/f1
 
 
 # Define a helper macro for debugging make errors online
@@ -129,7 +105,7 @@ print-%:
 	$(LD) $(TGT_LDFLAGS) $(LDFLAGS) $(OBJS) $(LDLIBS) -o $(*).elf
 	$(SIZE) $(BINARY).elf
 
-%.o: %.c libopencm3
+%.o: %.c
 	@#printf "  CC      $(*).c\n"
 	$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
 
@@ -150,7 +126,7 @@ clean:
 
 
 clobber: clean
-	rm -f *.elf *.bin *.hex *.srec *.list *.map $(CLOBBER)
+	rm -f **/*.elf **/*.bin **/*.hex **/*.srec **/*.list **/*.map $(patsubst %.o,%.elf,$(OBJS)) $(CLOBBER)
 
 # Flash 64k Device
 flash:	$(BINARY).bin
@@ -160,7 +136,7 @@ flash:	$(BINARY).bin
 bigflash: $(BINARY).bin
 	$(STFLASH) --flash=128k write $(BINARY).bin 0x8000000
 
-.PHONY: images clean elf bin hex srec list all libopencm3
+.PHONY: images clean elf bin hex srec list all
 -include $(OBJS:.o=.d)
 
 # End

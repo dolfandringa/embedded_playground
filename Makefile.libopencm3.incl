@@ -1,0 +1,16 @@
+OPENCM3_DIR 	:= $(abspath $(TOP_DIR)/lib/libopencm3)
+include $(TOP_DIR)/include/boards/Makefile.*.incl
+
+ifeq ($(LIBOPENCM3), 1)
+
+libopencm3:
+	$(MAKE) -C $(OPENCM3_DIR) $(OPENCM3_BOARD)
+
+TGT_CFLAGS	+= -I$(OPENCM3_DIR)/include
+TGT_CPPFLAGS	+= -I$(OPENCM3_DIR)/include
+LDLIBS		+= -L$(OPENCM3_DIR)/lib -lopencm3_stm32f1
+DEPS += libopencm3
+
+
+.PHONY: libopencm3
+endif

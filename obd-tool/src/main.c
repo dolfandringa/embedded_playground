@@ -26,7 +26,7 @@ task1(void *args __attribute((unused))) {
 
 	for (;;) {
 		gpio_set(LED_PORT,LED);
-		vTaskDelay(pdMS_TO_TICKS(100));
+		vTaskDelay(pdMS_TO_TICKS(200));
 		gpio_clear(LED_PORT, LED);
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}

@@ -1,0 +1,16 @@
+FREERTOS_DIR 	:= $(abspath $(TOP_DIR)/lib/FreeRTOS/FreeRTOS/Source)
+FREERTOS_MEM_DIR := $(abspath $(FREERTOS_DIR)/portable/MemMang)
+
+ifeq 	($(FREERTOS), 1)
+ifdef LIBOPENCM3
+	FREERTOS_PORT_DIR := $(abspath $(FREERTOS_DIR)/portable/GCC/ARM_CM3)
+	OBJS += $(LIB_DIR)/opencm3.o
+endif
+
+OBJS += $(patsubst %.o,$(FREERTOS_DIR)/%.o,$(FREERTOS_OBJS))
+OBJS += $(FREERTOS_PORT_DIR)/port.o
+OBJS += $(FREERTOS_MEM_DIR)/$(FREERTOS_MEM)
+
+TGT_CFLAGS	+= -I$(FREERTOS_DIR)/include -I./include -I. -I$(FREERTOS_PORT_DIR)
+TGT_CPPFLAGS	+= -I$(FREERTOS_DIR)/include -I./include -I. -I$(FREERTOS_PORT_DIR)
+endif
